@@ -1,10 +1,10 @@
-# Game Template (Linux)
+# Game (Linux)
 
-A simple framework for prototyping games. \
-The framework provides a video buffer and simple keyboard and mouse input.
+Game, based on https://github.com/imp5imp5/game_template_linux.
 
 ### Build
-``sudo apt install g++ cmake libx11-dev`` \
-``mkdir build && cd build`` \
-``cmake -DCMAKE_BUILD_TYPE=Release ..`` \
-``make``
+``sudo apt install g++ cmake libx11-dev xmake`` \
+``xmake``
+
+### Run
+``xmake run``
