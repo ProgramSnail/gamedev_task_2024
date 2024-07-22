@@ -3,13 +3,13 @@
 #include <cmath>
 
 template <typename T> struct Vec {
-  T x;
-  T y;
+  T x = {};
+  T y = {};
 
   //
 
   template <typename U> explicit operator Vec<U>() {
-    return Vec<U>{.x = x, .y = y};
+    return Vec<U>{.x = static_cast<U>(x), .y = static_cast<U>(y)};
   }
 
   //

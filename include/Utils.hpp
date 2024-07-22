@@ -5,6 +5,8 @@
 #include "Engine.h"
 #include "Vec.hpp"
 
+namespace utils {
+
 namespace safe {
 
 inline int lx(int x) { return std::max(0, x); }
@@ -30,12 +32,18 @@ template <typename T> inline bool is_valid_pos(Vec<T> pos) {
 
 inline Veci get_cursor() { return {.x = get_cursor_y(), .y = get_cursor_x()}; }
 
+inline constexpr Veci get_center() {
+  return {.x = SCREEN_HEIGHT / 2, .y = SCREEN_WIDTH / 2};
+}
+
+} // namespace utils
+
 //
 
 class GameObject {
 public:
   virtual void act(float dt) = 0;
-  virtual void draw() = 0;
+  virtual void draw(Veci offset) = 0;
 
   virtual ~GameObject() {}
 };

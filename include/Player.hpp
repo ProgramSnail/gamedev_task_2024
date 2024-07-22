@@ -1,6 +1,8 @@
 #pragma once
 
-class Player {
-public:
-private:
+#include "Vec.hpp"
+
+struct Player {
+  Vecf pos;
+  Vecf direction;
 };
