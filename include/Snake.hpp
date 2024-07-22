@@ -21,6 +21,12 @@ public:
 
   void draw(Veci offset = {}) const;
 
+  //
+
+  Veci get_pos() { return pos; }
+
+  //
+
   size_t get_length() { return length; }
 
   void set_length(size_t length) { this->length = length; }
@@ -32,6 +38,10 @@ public:
       length += inc;
     }
   }
+
+  //
+
+  bool touches(const Worm &other);
 
 protected:
   std::deque<Veci> track_;

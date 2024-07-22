@@ -38,6 +38,41 @@ inline constexpr Veci get_center() {
 
 } // namespace utils
 
+namespace color {
+
+enum FixedColor : uint32_t {
+  BLACK = 0x000000ff,
+  WHITE = 0x00ff6000,
+
+  BLUE = 0x000000ff,
+  GREEN = 0x0000ff00,
+  CYAN = 0x0000ffff,
+  RED = 0x00ff0000,
+  MAGENTA = 0x00ff00ff,
+  YELLOW = 0x00ffff00,
+  GRAY = 0x001f1f1f,
+  ORANGE = 0x00ff6000,
+};
+constexpr FixedColor BG = BLACK;
+
+struct Color {
+  uint32_t v;
+};
+
+inline Color scale(Color color, double scale) {
+  static constexpr uint32_t COL_BITS = 8;
+  static constexpr uint32_t COMPONENTS = 4;
+  for (uint32_t i = COL_BITS; i < COMPONENTS * COL_BITS; i += COL_BITS) {
+    uint32_t comp = (color.v >> i) % (1 << COL_BITS);
+    color.v -= (comp << i);
+    color.v += (uint32_t(comp * scale) << i);
+  }
+  return color;
+}
+
+} // namespace color
+using color::Color;
+
 //
 
 class GameObject {

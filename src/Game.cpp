@@ -1,11 +1,10 @@
 #include "Engine.h"
-#include <iostream>
+#include <ctime>
 #include <memory.h>
 #include <stdlib.h>
 
 // #include <stdio.h>
 
-#include "Canvas.hpp"
 #include "Map.hpp"
 #include "Player.hpp"
 #include "Snake.hpp"
@@ -27,13 +26,16 @@ constexpr double MIN_CONTROL_DISTANCE = 10;
 //  left button, 1 - right button) schedule_quit_game() - quit game after act()
 
 // initialize game data in this function
-void initialize() { srand(time(0)); }
+void initialize() { std::srand(std::time(0)); }
 
 float game_time = 0.0f;
 
 Player player{
     .pos = {.x = 20, .y = 20},
     .direction = {.x = 1.0, .y = 0.0},
+    .speed = 200.0,
+    .move_interval = 0.01,
+    .move_time_delta = 0,
 };
 
 World world;
@@ -44,17 +46,26 @@ Map map{{
     .gen_food_count = 1000,
     .size = {.x = 20000, .y = 20000},
     .min_food_weight = 1,
-    .max_food_weight = 10,
-    .food_color = Color::RED,
+    .max_food_weight = 5,
+    .food_color = {color::RED},
 }};
 
-auto snake = Worm({{.pos = Veci(player.pos), .color = Color::GREEN}, 100, 10});
+// std::vector<Worm> bots; // TODO
+
+auto snake = Worm(canvas::WormObject{
+    {.pos = Veci(player.pos), .color = {color::GREEN}},
+    10,
+    10,
+});
 
 // this function is called to update game data,
 // dt - time elapsed since the previous update (in seconds)
 void act(float dt) {
-  if (is_key_pressed(VK_ESCAPE))
+  if (is_key_pressed(VK_ESCAPE)) {
     schedule_quit_game();
+  }
+
+  map.act(dt);
 
   world.cursor = utils::get_cursor();
   if (world.cursor != world.prev_cursor and utils::is_valid_pos(world.cursor)) {
@@ -65,17 +76,29 @@ void act(float dt) {
     }
   }
 
-  int speed = 200;
-  player.pos += player.direction * dt * speed;
+  player.pos += player.direction * dt * player.speed;
 
   game_time += dt;
   world.prev_cursor = world.cursor;
 
-  snake.add(Veci(player.pos));
+  player.move_time_delta += dt;
+  if (player.move_time_delta > player.move_interval) {
+    player.move_time_delta -= player.move_interval;
+    snake.add(Veci(player.pos));
+  }
 
-  snake.inc_length(map.eat(Veci(player.pos), 30));
+  int eaten = map.eat(Veci(player.pos), 20);
+  snake.inc_length(eaten);
 
-  map.act(dt);
+  // TODO
+  // for (const auto &bot : bots) {
+  //   if (snake.touches(bot)) { // GAME OVER
+  //     schedule_quit_game();
+  //   }
+  //   if (bot.touches(snake)) {
+  //     // regen bot
+  //   }
+  // }
 }
 
 // fill buffer in this function
@@ -85,11 +108,10 @@ void draw() {
   // clear backbuffer
   memset(buffer, 0, SCREEN_HEIGHT * SCREEN_WIDTH * sizeof(uint32_t));
 
-  Veci map_offset = Veci(player.pos) - utils::get_center();
+  Veci map_offset = Veci(/*player.pos*/ snake.get_pos()) - utils::get_center();
 
   snake.draw(map_offset);
   map.draw(map_offset);
-  // paint::circle({{.pos = Veci(pos), .color = Color::ORANGE}, 20});
 }
 
 // free game data in this function
