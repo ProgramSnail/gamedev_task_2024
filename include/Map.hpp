@@ -49,8 +49,8 @@ public:
 
   void draw(Veci offset) override {
     for (const auto &food : food_) {
-      Veci food_pos = food.pos - offset;
-      if (utils::is_valid_pos(food_pos) and not food.eaten) {
+      Veci food_pos = utils::to_world_coord(food.pos - offset);
+      if (utils::is_on_screen(food_pos) and not food.eaten) {
         paint::circle({{
                            .pos = food_pos,
                            .color = color::scale(config_.food_color,

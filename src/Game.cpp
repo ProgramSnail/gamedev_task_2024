@@ -6,6 +6,7 @@
 // #include <stdio.h>
 
 #include "Map.hpp"
+#include "Params.hpp"
 #include "Player.hpp"
 #include "Snake.hpp"
 #include "Utils.hpp"
@@ -43,8 +44,8 @@ World world;
 Map map{{
     .gen_interval = 1.0,
     .food_exists_gens = 10,
-    .gen_food_count = 1000,
-    .size = {.x = 20000, .y = 20000},
+    .gen_food_count = 100, // 1000,
+    .size = WORLD_SIZE,
     .min_food_weight = 1,
     .max_food_weight = 5,
     .food_color = {color::RED},
@@ -68,8 +69,8 @@ void act(float dt) {
   map.act(dt);
 
   world.cursor = utils::get_cursor();
-  if (world.cursor != world.prev_cursor and utils::is_valid_pos(world.cursor)) {
-    Vecf diff(world.cursor - utils::get_center()); // - pos;
+  if (world.cursor != world.prev_cursor and utils::is_on_screen(world.cursor)) {
+    Vecf diff(world.cursor - utils::get_screen_center()); // - pos;
 
     if (diff.len() > MIN_CONTROL_DISTANCE) {
       player.direction = diff.norm();
@@ -87,7 +88,8 @@ void act(float dt) {
     snake.add(Veci(player.pos));
   }
 
-  int eaten = map.eat(Veci(player.pos), 20);
+  int eaten = map.eat(
+      utils::to_world_coord(Veci(player.pos) + utils::get_screen_center()), 20);
   snake.inc_length(eaten);
 
   // TODO
@@ -108,9 +110,9 @@ void draw() {
   // clear backbuffer
   memset(buffer, 0, SCREEN_HEIGHT * SCREEN_WIDTH * sizeof(uint32_t));
 
-  Veci map_offset = Veci(/*player.pos*/ snake.get_pos()) - utils::get_center();
+  Veci map_offset = Veci(snake.get_pos());
 
-  snake.draw(map_offset);
+  snake.draw(map_offset - utils::get_screen_center());
   map.draw(map_offset);
 }
 
