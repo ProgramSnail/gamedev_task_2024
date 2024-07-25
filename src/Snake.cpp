@@ -1,6 +1,6 @@
 #include "Snake.hpp"
 
-void Worm::add(Veci pos) {
+void Snake::add(Veci pos) {
   this->pos = pos;
   track_.push_back(pos);
   if (track_.size() > length) {
@@ -8,13 +8,13 @@ void Worm::add(Veci pos) {
   }
 }
 
-void Worm::draw(Veci offset) const {
+void Snake::draw(Veci offset) const {
   for (const auto &pos : track_) {
     paint::circle({{.pos = pos - offset, .color = color}, radius});
   }
 }
 
-bool Worm::touches(const Worm &other) {
+bool Snake::touches(const Snake &other) {
   int dist = radius + other.radius;
   for (const auto &elem : other.track_) {
     if ((pos - elem).len_sq() < dist * dist) {

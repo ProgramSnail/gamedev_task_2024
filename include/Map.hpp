@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <iostream>
+#include <optional>
 
 #include "Canvas.hpp"
 #include "Utils.hpp"
@@ -59,6 +60,21 @@ public:
                        food.weight * 2});
       }
     }
+  }
+
+  std::optional<Veci> find_nearest_food(Veci pos) {
+    if (food_.empty()) {
+      return std::nullopt;
+    }
+
+    Veci target = food_.front().pos;
+    for (const auto &food : food_) {
+      if ((pos - food.pos).len_sq() < (pos - target).len_sq()) {
+        target = food.pos;
+      }
+    }
+
+    return target;
   }
 
 private:

@@ -24,14 +24,17 @@ public:
 
     if (not target_.has_value() or
         time_from_target_set_ >= config_.time_between_targets or
-        (target_.value() - real_pos_).len_sq() < radius * radius) {
+        (target_.value() - pos).len_sq() < radius * radius) {
       time_from_target_set_ = 0;
 
-      target_ = map_.find_nearest_food(real_pos_); // TODO
+      target_ = map_.find_nearest_food(pos);
     }
 
-    direction_ = (Vecf(target_.value()) - real_pos_).norm();
-    // TODO: manually change direction
+    // check for case when no food found
+    if (target_.has_value()) {
+      direction_ = (Vecf(target_.value()) - real_pos_).norm();
+      // TODO: manually change direction
+    }
 
     move(dt);
   }
@@ -54,7 +57,7 @@ private:
 
   Vecf real_pos_;
   Vecf direction_ = {};
-  std::optional<Vecf> target_ = {};
+  std::optional<Veci> target_ = {};
   float time_from_target_set_ = 0;
   float move_time_delta_ = 0;
 };
