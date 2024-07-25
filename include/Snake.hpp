@@ -6,16 +6,16 @@
 
 namespace canvas {
 
-struct WormObject : public Object {
+struct SnakeObject : public Object {
   size_t length;
   int radius;
 };
 
 } // namespace canvas
 
-class Worm : protected canvas::WormObject {
+class Snake : protected canvas::SnakeObject {
 public:
-  Worm(canvas::WormObject obj) : WormObject(obj), track_{pos} {}
+  Snake(canvas::SnakeObject obj) : SnakeObject(obj), track_{pos} {}
 
   void add(Veci pos);
 
@@ -41,7 +41,7 @@ public:
 
   //
 
-  bool touches(const Worm &other);
+  bool touches(const Snake &other);
 
 protected:
   std::deque<Veci> track_;

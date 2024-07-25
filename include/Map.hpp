@@ -90,7 +90,7 @@ private:
   }
 
 private:
-  Config config_;
+  const Config config_;
   double time_from_last_gen_ = 0;
   size_t current_gen_ = 0;
   std::deque<Food> food_ = {};

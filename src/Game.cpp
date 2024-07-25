@@ -53,7 +53,7 @@ Map map{{
 
 // std::vector<Worm> bots; // TODO
 
-auto snake = Worm(canvas::WormObject{
+auto snake = Snake(canvas::SnakeObject{
     {.pos = Veci(player.pos), .color = {color::GREEN}},
     10,
     10,
