@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
-        run: sudo apt-get install -y xmake g++ cmake libx11-dev
+        run: sudo add-apt-repository ppa:xmake-io/xmake && sudo apt update && sudo apt-get install -y xmake g++ cmake libx11-dev
       - name: Build project with xmake
         run: xmake
       - name: Upload binary
