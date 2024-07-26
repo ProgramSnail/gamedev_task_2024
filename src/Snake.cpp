@@ -27,3 +27,12 @@ bool SnakeObject::touches(const SnakeObject &other) {
 }
 
 } // namespace canvas
+
+void Snake::move(float dt) {
+  real_pos_ += direction_ * dt * snake_config_.speed;
+  move_time_delta_ += dt;
+  if (move_time_delta_ > snake_config_.move_interval) {
+    move_time_delta_ -= snake_config_.move_interval;
+    add(Veci(real_pos_));
+  }
+}

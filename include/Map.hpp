@@ -89,12 +89,12 @@ private:
           .gen = current_gen_,
           .pos =
               {
-                  .x = std::rand() % config_.size.x,
-                  .y = std::rand() % config_.size.y,
+                  .x = utils::rand_to(config_.size.x),
+                  .y = utils::rand_to(config_.size.y),
               },
           .weight = config_.min_food_weight +
-                    std::rand() % std::abs(config_.max_food_weight -
-                                           config_.min_food_weight),
+                    utils::rand_to(std::abs(config_.max_food_weight -
+                                            config_.min_food_weight)),
       });
     }
   }

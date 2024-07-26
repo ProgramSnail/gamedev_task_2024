@@ -56,6 +56,15 @@ template <typename T> inline Vec<T> to_world_coord(Vec<T> pos) {
   };
 }
 
+inline int rand_to(int x) {
+  if (std::abs(x) <= 1) {
+    return 0;
+  }
+
+  bool is_negative = x < 0;
+  return (is_negative ? -1 : 1) + rand() % std::abs(x);
+}
+
 } // namespace utils
 
 namespace color {

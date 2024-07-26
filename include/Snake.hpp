@@ -11,7 +11,7 @@ class SnakeObject {
 public:
   struct Config {
     Object obj;
-    size_t initial_length;
+    uint initial_length;
     int radius;
   };
 
@@ -34,12 +34,14 @@ public:
 
   //
 
-  size_t get_length() { return length_; }
+  uint get_length() { return length_; }
 
-  void set_length(size_t length) { length_ = length; }
+  uint get_initial_length() { return canvas_config_.initial_length; }
+
+  void set_length(uint length) { length_ = length; }
 
   void inc_length(int inc) {
-    if (-inc > static_cast<int>(length_)) {
+    if (-inc > int(length_)) {
       length_ = 1;
     } else {
       length_ += inc;
@@ -85,14 +87,7 @@ public:
 protected:
   virtual void change_direction(float dt) = 0;
 
-  virtual void move(float dt) {
-    real_pos_ += direction_ * dt * snake_config_.speed;
-    move_time_delta_ += dt;
-    if (move_time_delta_ > snake_config_.move_interval) {
-      move_time_delta_ -= snake_config_.move_interval;
-      add(Veci(real_pos_));
-    }
-  }
+  virtual void move(float dt);
 
 protected:
   const Config snake_config_;

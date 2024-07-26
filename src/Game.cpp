@@ -9,6 +9,7 @@
 #include "Params.hpp"
 #include "Player.hpp"
 #include "Snake.hpp"
+#include "Text.hpp"
 #include "Utils.hpp"
 #include "World.hpp"
 
@@ -90,6 +91,12 @@ void draw() {
 
   player.draw(map_offset);
   map.draw(map_offset);
+
+  paint::text({
+      {.pos = {.x = 10, .y = 10}, .color = {color::BLUE}},
+      5,
+      player.get_length() - player.get_initial_length(),
+  });
 }
 
 // free game data in this function

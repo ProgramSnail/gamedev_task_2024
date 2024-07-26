@@ -2,7 +2,7 @@
 
 #include "Utils.hpp"
 
-using namespace utils;
+using utils::screen_at;
 
 namespace paint {
 
