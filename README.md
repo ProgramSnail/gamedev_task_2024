@@ -6,6 +6,7 @@
 
 Game is based on https://github.com/imp5imp5/game_template_linux.
 
+Executable file for linux is placed in **release** section.
 
 ### Build (xmake)
 ``sudo apt install g++ cmake libx11-dev xmake`` \
