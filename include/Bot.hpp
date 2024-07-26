@@ -5,29 +5,27 @@
 #include "Map.hpp"
 #include "Snake.hpp"
 
-class Bot : public Snake, public GameObject {
+class Bot : public Snake {
 public:
   struct Config {
     float time_between_targets;
-    double speed;
-    float move_interval;
   };
 
-  Bot(canvas::SnakeObject obj, Config config, Map &map)
-      : Snake(obj), config_(config), map_(map), real_pos_(obj.pos) {}
+  Bot(canvas::SnakeObject::Config canvas_config, Snake::Config snake_config,
+      Config bot_config, Map &map)
+      : Snake(canvas_config, snake_config, map), bot_config_(bot_config) {}
 
-  void act(float dt) override {
+protected:
+  void change_direction(float dt) override {
     time_from_target_set_ += dt;
 
-    int eaten = map_.eat(utils::to_world_coord(pos), 20);
-    inc_length(eaten);
-
     if (not target_.has_value() or
-        time_from_target_set_ >= config_.time_between_targets or
-        (target_.value() - pos).len_sq() < radius * radius) {
+        time_from_target_set_ >= bot_config_.time_between_targets or
+        (target_.value() - get_pos()).len_sq() <
+            canvas_config_.radius * canvas_config_.radius) {
       time_from_target_set_ = 0;
 
-      target_ = map_.find_nearest_food(pos);
+      target_ = map_.find_nearest_food(get_pos());
     }
 
     // check for case when no food found
@@ -35,29 +33,11 @@ public:
       direction_ = (Vecf(target_.value()) - real_pos_).norm();
       // TODO: manually change direction
     }
-
-    move(dt);
   }
-
-  void draw(Veci offset) override { Snake::draw(offset); }
 
 protected:
-  void move(float dt) {
-    real_pos_ += direction_ * dt * config_.speed;
-    move_time_delta_ += dt;
-    if (move_time_delta_ > config_.move_interval) {
-      move_time_delta_ -= config_.move_interval;
-      add(Veci(real_pos_));
-    }
-  }
+  const Config bot_config_;
 
-private:
-  const Config config_;
-  Map &map_;
-
-  Vecf real_pos_;
-  Vecf direction_ = {};
   std::optional<Veci> target_ = {};
   float time_from_target_set_ = 0;
-  float move_time_delta_ = 0;
 };

@@ -1,25 +1,29 @@
 #include "Snake.hpp"
 
-void Snake::add(Veci pos) {
-  this->pos = pos;
+namespace canvas {
+
+void SnakeObject::add(Veci pos) {
   track_.push_back(pos);
-  if (track_.size() > length) {
+  if (track_.size() > length_) {
     track_.pop_front();
   }
 }
 
-void Snake::draw(Veci offset) const {
+void SnakeObject::draw(Veci offset) const {
   for (const auto &pos : track_) {
-    paint::circle({{.pos = pos - offset, .color = color}, radius});
+    paint::circle({{.pos = pos - offset, .color = canvas_config_.obj.color},
+                   canvas_config_.radius});
   }
 }
 
-bool Snake::touches(const Snake &other) {
-  int dist = radius + other.radius;
+bool SnakeObject::touches(const SnakeObject &other) {
+  int dist = canvas_config_.radius + other.canvas_config_.radius;
   for (const auto &elem : other.track_) {
-    if ((pos - elem).len_sq() < dist * dist) {
+    if ((get_pos() - elem).len_sq() < dist * dist) {
       return true;
     }
   }
   return false;
 }
+
+} // namespace canvas

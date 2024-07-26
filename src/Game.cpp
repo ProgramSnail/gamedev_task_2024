@@ -12,8 +12,6 @@
 #include "Utils.hpp"
 #include "World.hpp"
 
-constexpr double MIN_CONTROL_DISTANCE = 10;
-
 //
 //  You are free to modify this file
 //
@@ -31,14 +29,6 @@ void initialize() { std::srand(std::time(0)); }
 
 float game_time = 0.0f;
 
-Player player{
-    .pos = {.x = 20, .y = 20},
-    .direction = {.x = 1.0, .y = 0.0},
-    .speed = 200.0,
-    .move_interval = 0.01,
-    .move_time_delta = 0,
-};
-
 World world;
 
 Map map{{
@@ -51,13 +41,18 @@ Map map{{
     .food_color = {color::RED},
 }};
 
-// std::vector<Worm> bots; // TODO
+Player player{canvas::SnakeObject::Config{
+                  .obj = {.pos = {}, .color = {color::GREEN}},
+                  .initial_length = 10,
+                  .radius = 10,
+              },
+              Snake::Config{
+                  .speed = 200.0,
+                  .move_interval = 0.01,
+              },
+              map};
 
-auto snake = Snake(canvas::SnakeObject{
-    {.pos = Veci(player.pos), .color = {color::GREEN}},
-    10,
-    10,
-});
+// std::vector<Bot> bots; // TODO
 
 // this function is called to update game data,
 // dt - time elapsed since the previous update (in seconds)
@@ -68,29 +63,10 @@ void act(float dt) {
 
   map.act(dt);
 
-  world.cursor = utils::get_cursor();
-  if (world.cursor != world.prev_cursor and utils::is_on_screen(world.cursor)) {
-    Vecf diff(world.cursor - utils::get_screen_center()); // - pos;
-
-    if (diff.len() > MIN_CONTROL_DISTANCE) {
-      player.direction = diff.norm();
-    }
-  }
-
-  player.pos += player.direction * dt * player.speed;
+  player.act(dt);
 
   game_time += dt;
   world.prev_cursor = world.cursor;
-
-  player.move_time_delta += dt;
-  if (player.move_time_delta > player.move_interval) {
-    player.move_time_delta -= player.move_interval;
-    snake.add(Veci(player.pos));
-  }
-
-  int eaten = map.eat(
-      utils::to_world_coord(Veci(player.pos) + utils::get_screen_center()), 20);
-  snake.inc_length(eaten);
 
   // TODO
   // for (const auto &bot : bots) {
@@ -110,9 +86,9 @@ void draw() {
   // clear backbuffer
   memset(buffer, 0, SCREEN_HEIGHT * SCREEN_WIDTH * sizeof(uint32_t));
 
-  Veci map_offset = Veci(snake.get_pos());
+  Veci map_offset = Veci(player.get_pos());
 
-  snake.draw(map_offset - utils::get_screen_center());
+  player.draw(map_offset);
   map.draw(map_offset);
 }
 
