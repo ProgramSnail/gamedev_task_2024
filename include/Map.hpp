@@ -1,7 +1,6 @@
 #pragma once
 
 #include <deque>
-#include <iostream>
 #include <optional>
 
 #include "Canvas.hpp"
@@ -37,7 +36,7 @@ public:
     }
   }
 
-  int eat(Veci pos, int dist) { // TODO: faster variant ?
+  int eat(Veci pos, int64_t dist) {
     size_t eaten_weight = 0;
     for (auto &food : food_) {
       if ((pos - food.pos).len_sq() < dist * dist and not food.eaten) {
@@ -48,7 +47,7 @@ public:
     return eaten_weight;
   }
 
-  void draw(Veci offset) override {
+  void draw(Veci offset) const override {
     for (const auto &food : food_) {
       Veci food_pos = utils::to_world_coord(food.pos - offset);
       if (utils::is_on_screen(food_pos) and not food.eaten) {
@@ -92,14 +91,13 @@ private:
                   .x = utils::rand_to(config_.size.x),
                   .y = utils::rand_to(config_.size.y),
               },
-          .weight = config_.min_food_weight +
-                    utils::rand_to(std::abs(config_.max_food_weight -
-                                            config_.min_food_weight)),
+          .weight = utils::rand_in_range(config_.min_food_weight,
+                                         config_.max_food_weight),
       });
     }
   }
 
-  double food_lasted(const Food &food) {
+  double food_lasted(const Food &food) const {
     return ((current_gen_ - food.gen) * config_.gen_interval +
             time_from_last_gen_) /
            (config_.food_exists_gens * config_.gen_interval);
@@ -107,6 +105,7 @@ private:
 
 private:
   const Config config_;
+
   double time_from_last_gen_ = 0;
   size_t current_gen_ = 0;
   std::deque<Food> food_ = {};

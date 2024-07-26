@@ -12,12 +12,13 @@ public:
   struct Config {
     Object obj;
     uint initial_length;
-    int radius;
+    int64_t radius;
   };
 
   SnakeObject(Config config)
       : canvas_config_(config), length_{config.initial_length},
         track_{config.obj.pos} {}
+  //
 
   void add(Veci pos);
 
@@ -50,10 +51,10 @@ public:
 
   //
 
-  bool touches(const SnakeObject &other);
+  virtual bool touches(const SnakeObject &other, Veci offset = {});
 
 protected:
-  const Config canvas_config_;
+  Config canvas_config_;
 
   size_t length_;
   std::deque<Veci> track_;
@@ -82,7 +83,7 @@ public:
     move(dt);
   }
 
-  void draw(Veci offset) override { SnakeObject::draw(offset); }
+  void draw(Veci offset) const override { SnakeObject::draw(offset); }
 
 protected:
   virtual void change_direction(float dt) = 0;
@@ -96,4 +97,22 @@ protected:
   Vecf real_pos_;
   Vecf direction_ = {};
   float move_time_delta_ = 0;
+};
+
+//
+
+template <Color color = color::WHITE, Veci pos = {}>
+inline canvas::SnakeObject::Config default_snake_object_config = {
+    .obj =
+        {
+            .pos = pos,
+            .color = color,
+        },
+    .initial_length = 20,
+    .radius = 10,
+};
+
+inline Snake::Config default_snake_config = {
+    .speed = 100.0,
+    .move_interval = 0.01,
 };

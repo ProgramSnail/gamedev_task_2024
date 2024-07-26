@@ -16,10 +16,10 @@ void SnakeObject::draw(Veci offset) const {
   }
 }
 
-bool SnakeObject::touches(const SnakeObject &other) {
-  int dist = canvas_config_.radius + other.canvas_config_.radius;
+bool SnakeObject::touches(const SnakeObject &other, Veci offset) {
+  int64_t dist = canvas_config_.radius + other.canvas_config_.radius;
   for (const auto &elem : other.track_) {
-    if ((get_pos() - elem).len_sq() < dist * dist) {
+    if ((get_pos() - elem - offset).len_sq() < dist * dist) {
       return true;
     }
   }

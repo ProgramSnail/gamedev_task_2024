@@ -16,11 +16,11 @@ struct Object {
 };
 
 struct Square : public Object {
-  int side;
+  int64_t side;
 };
 
 struct Circle : public Object {
-  int radius;
+  int64_t radius;
 };
 
 } // namespace canvas

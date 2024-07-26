@@ -65,6 +65,14 @@ inline int rand_to(int x) {
   return (is_negative ? -1 : 1) + rand() % std::abs(x);
 }
 
+inline int rand_in_range(int x, int y) {
+  if (x > y) {
+    std::swap(x, y);
+  }
+
+  return rand_to(y - x) + x;
+}
+
 } // namespace utils
 
 namespace color {
@@ -107,7 +115,7 @@ using color::Color;
 class GameObject {
 public:
   virtual void act(float dt) = 0;
-  virtual void draw(Veci offset) = 0;
+  virtual void draw(Veci offset) const = 0;
 
   virtual ~GameObject() {}
 };

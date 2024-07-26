@@ -28,16 +28,41 @@ protected:
       target_ = map_.find_nearest_food(get_pos());
     }
 
-    // check for case when no food found
     if (target_.has_value()) {
-      direction_ = (Vecf(target_.value()) - real_pos_).norm();
-      // TODO: manually change direction
+      if (target_ != prev_target_) {
+        direction_ = (Vecf(target_.value()) - real_pos_).norm();
+      }
+    } else {
+      direction_ = {};
     }
+
+    prev_target_ = target_;
   }
 
 protected:
   const Config bot_config_;
 
   std::optional<Veci> target_ = {};
+  std::optional<Veci> prev_target_ = {};
   float time_from_target_set_ = 0;
 };
+
+//
+
+inline Bot::Config default_bot_config = {
+    .time_between_targets = 0.5,
+};
+
+inline Bot default_bot(Veci pos, Map &map) {
+  return Bot(
+      {
+          .obj =
+              {
+                  .pos = pos,
+                  .color = {color::GRAY},
+              },
+          .initial_length = 20,
+          .radius = 10,
+      },
+      default_snake_config, default_bot_config, map);
+}

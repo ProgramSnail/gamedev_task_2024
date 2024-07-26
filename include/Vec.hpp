@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cstdint>
 
 template <typename T> struct Vec {
   T x = {};
@@ -78,7 +79,7 @@ template <typename T> struct Vec {
 
   //
 
-  int len_sq() const { return dot(*this, *this); }
+  T len_sq() const { return dot(*this, *this); }
 
   double len() const { return std::sqrt(len_sq()); }
 
@@ -86,14 +87,14 @@ template <typename T> struct Vec {
 
   //
 
-  int static dot(Vec left, Vec right) {
+  T static dot(Vec left, Vec right) {
     return left.x * right.x + left.y * right.y;
   }
 
-  int static cross(Vec left, Vec right) {
+  T static cross(Vec left, Vec right) {
     return left.x * right.y - left.y * right.x;
   }
 };
 
-using Veci = Vec<int>;
+using Veci = Vec<int64_t>;
 using Vecf = Vec<double>;

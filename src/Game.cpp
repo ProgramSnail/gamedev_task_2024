@@ -1,37 +1,21 @@
-#include "Engine.h"
+#include <cstdlib>
+#include <cstring>
 #include <ctime>
-#include <memory.h>
-#include <stdlib.h>
+#include <iostream>
+#include <vector>
 
 // #include <stdio.h>
 
+#include "Bot.hpp"
+#include "Engine.h"
 #include "Map.hpp"
 #include "Params.hpp"
 #include "Player.hpp"
 #include "Snake.hpp"
 #include "Text.hpp"
 #include "Utils.hpp"
-#include "World.hpp"
 
-//
-//  You are free to modify this file
-//
-
-//  is_key_pressed(int button_vk_code) - check if a key is pressed,
-//                                       use keycodes (VK_SPACE, VK_RIGHT,
-//                                       VK_LEFT, VK_UP, VK_DOWN, VK_RETURN)
-//
-//  get_cursor_x(), get_cursor_y() - get mouse cursor position
-//  is_mouse_button_pressed(int button) - check if mouse button is pressed (0 -
-//  left button, 1 - right button) schedule_quit_game() - quit game after act()
-
-// initialize game data in this function
-void initialize() { std::srand(std::time(0)); }
-
-float game_time = 0.0f;
-
-World world;
-
+namespace world {
 Map map{{
     .gen_interval = 1.0,
     .food_exists_gens = 10,
@@ -42,18 +26,46 @@ Map map{{
     .food_color = {color::RED},
 }};
 
-Player player{canvas::SnakeObject::Config{
-                  .obj = {.pos = {}, .color = {color::GREEN}},
-                  .initial_length = 10,
-                  .radius = 10,
-              },
-              Snake::Config{
+Player player{default_snake_object_config<{color::GREEN}>,
+              {
                   .speed = 200.0,
                   .move_interval = 0.01,
               },
               map};
 
-// std::vector<Bot> bots; // TODO
+std::vector<Bot> bots;
+} // namespace world
+
+std::vector<Bot> gen_bots(Veci player_pos, Map &map) {
+  std::vector<Bot> bots;
+
+  bots.reserve(WORLD_SIZE.x * WORLD_SIZE.y /
+               (BOT_GEN_INTERVAL * BOT_GEN_INTERVAL));
+  for (int x = 0; x < WORLD_SIZE.x; x += BOT_GEN_INTERVAL) {
+    for (int y = 0; y < WORLD_SIZE.y; y += BOT_GEN_INTERVAL) {
+      Veci pos{
+          .x = x +
+               utils::rand_in_range(-BOT_GEN_RAND_OFFSET, BOT_GEN_RAND_OFFSET),
+          .y = y -
+               utils::rand_in_range(-BOT_GEN_RAND_OFFSET, BOT_GEN_RAND_OFFSET),
+      };
+      if ((player_pos - pos).len_sq() >=
+          MIN_BOT_GEN_DISTANCE * MIN_BOT_GEN_DISTANCE) {
+        bots.push_back(default_bot(pos, map));
+      }
+    }
+  }
+
+  return bots;
+}
+
+// initialize game data in this function
+void initialize() {
+  std::srand(std::time(0));
+
+  world::bots = gen_bots(world::player.get_pos() + utils::get_screen_center(),
+                         world::map);
+}
 
 // this function is called to update game data,
 // dt - time elapsed since the previous update (in seconds)
@@ -62,22 +74,31 @@ void act(float dt) {
     schedule_quit_game();
   }
 
-  map.act(dt);
+  world::player.act(dt);
 
-  player.act(dt);
+  for (auto it = world::bots.begin(); it != world::bots.end();) {
+    it->act(dt);
 
-  game_time += dt;
-  world.prev_cursor = world.cursor;
+    if (world::player.touches(*it)) { // GAME OVER
+      std::cout << "game over :(\nfinal score is " << world::player.get_score()
+                << std::endl;
+      schedule_quit_game();
+    }
+    ++it;
+  }
 
-  // TODO
-  // for (const auto &bot : bots) {
-  //   if (snake.touches(bot)) { // GAME OVER
-  //     schedule_quit_game();
-  //   }
-  //   if (bot.touches(snake)) {
-  //     // regen bot
-  //   }
-  // }
+  world::map.act(dt);
+}
+
+void draw_score() {
+  paint::text({
+      {
+          .pos = {.x = 10, .y = 10},
+          .color = {color::BLUE},
+      },
+      5,
+      world::player.get_score(),
+  });
 }
 
 // fill buffer in this function
@@ -85,18 +106,19 @@ void act(float dt) {
 // (8 bits per R, G, B)
 void draw() {
   // clear backbuffer
-  memset(buffer, 0, SCREEN_HEIGHT * SCREEN_WIDTH * sizeof(uint32_t));
+  std::memset(buffer, 0, SCREEN_HEIGHT * SCREEN_WIDTH * sizeof(uint32_t));
 
-  Veci map_offset = Veci(player.get_pos());
+  Veci map_offset = Veci(world::player.get_pos());
 
-  player.draw(map_offset);
-  map.draw(map_offset);
+  world::player.draw(map_offset);
 
-  paint::text({
-      {.pos = {.x = 10, .y = 10}, .color = {color::BLUE}},
-      5,
-      player.get_length() - player.get_initial_length(),
-  });
+  for (const auto &bot : world::bots) {
+    bot.draw(map_offset);
+  }
+
+  world::map.draw(map_offset);
+
+  draw_score();
 }
 
 // free game data in this function

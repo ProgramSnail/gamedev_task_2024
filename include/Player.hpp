@@ -14,6 +14,8 @@ class Player : public Snake {
 public:
   using Snake::Snake;
 
+  uint get_score() { return get_length() - get_initial_length(); }
+
   void act(float dt) override {
     int eaten = map_.eat(
         utils::to_world_coord(get_pos() + utils::get_screen_center()), 20);
@@ -24,8 +26,12 @@ public:
     move(dt);
   }
 
-  void draw(Veci offset) override {
+  void draw(Veci offset) const override {
     Snake::draw(offset - utils::get_screen_center());
+  }
+
+  bool touches(const SnakeObject &other, Veci offset = {}) override {
+    return Snake::touches(other, offset - utils::get_screen_center());
   }
 
 protected:

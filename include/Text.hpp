@@ -5,7 +5,7 @@
 namespace canvas {
 
 struct Text : public Object {
-  uint scale;
+  uint64_t scale;
   uint value;
 };
 
